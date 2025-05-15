@@ -1,25 +1,37 @@
 chrome.action.onClicked.addListener(async (tab) => {
     if (!tab.id) return;
   
-    // Check if timeline exists
     chrome.scripting.executeScript({
       target: { tabId: tab.id },
-      func: () => !!document.getElementById("reply-timeline")
+      func: () => window.__timelineEnabled
     }, ([result]) => {
-      if (result.result) {
-        // If already present → remove it
+      const isVisible = result?.result;
+  
+      if (isVisible) {
+        // 🔻 Disable timeline
         chrome.scripting.executeScript({
           target: { tabId: tab.id },
           func: () => {
-            const el = document.getElementById("reply-timeline");
-            if (el) el.remove();
+            window.__timelineEnabled = false;
+            document.getElementById("reply-timeline")?.remove();
+            document.querySelector(".timeline-tooltip")?.remove();
           }
         });
       } else {
-        // Otherwise → inject content.js
+        // ✅ Re-enable flag + inject scripts
         chrome.scripting.executeScript({
           target: { tabId: tab.id },
-          files: ["d3.v7.min.js", "content.js"]
+          func: () => { window.__timelineEnabled = true; }
+        }, () => {
+          chrome.scripting.executeScript({
+            target: { tabId: tab.id },
+            files: ["d3.v7.min.js"]
+          }, () => {
+            chrome.scripting.executeScript({
+              target: { tabId: tab.id },
+              files: ["content.js"]
+            });
+          });
         });
       }
     });

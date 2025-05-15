@@ -1,14 +1,26 @@
 {
   "manifest_version": 3,
-  "name": "Reply Timeline Toggle",
+  "name": "Gmail Reply Timeline",
   "version": "1.0",
-  "description": "Toggles a dummy reply timeline graph on the page via extension icon.",
+  "description": "Visualize Gmail reply timelines as a timeline chart.",
   "permissions": ["scripting", "activeTab"],
   "background": {
     "service_worker": "background.js"
   },
+  "host_permissions": ["https://mail.google.com/*"],
   "action": {
-    "default_title": "Toggle Reply Timeline"
+    "default_title": "Toggle Gmail Timeline",
+    "default_icon": {
+      "16": "icon.png",
+      "32": "icon.png",
+      "48": "icon.png",
+      "128": "icon.png"
+    }
   },
-  "host_permissions": ["<all_urls>"]
+  "icons": {
+    "16": "icon.png",
+    "32": "icon.png",
+    "48": "icon.png",
+    "128": "icon.png"
+  }
 }
