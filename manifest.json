@@ -1,0 +1,14 @@
+{
+  "manifest_version": 3,
+  "name": "Reply Timeline Toggle",
+  "version": "1.0",
+  "description": "Toggles a dummy reply timeline graph on the page via extension icon.",
+  "permissions": ["scripting", "activeTab"],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_title": "Toggle Reply Timeline"
+  },
+  "host_permissions": ["<all_urls>"]
+}
