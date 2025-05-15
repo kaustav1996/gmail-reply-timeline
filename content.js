@@ -7,6 +7,12 @@
     window.__timelineEnabled = true;
   }
 
+  // Global observer reference for disconnecting when disabled
+  let gmailThreadObserver = null;
+
+  /**
+   * Observes Gmail DOM for thread changes and triggers timeline updates.
+   */
   const observeGmailThread = () => {
     const target = document.body;
     const config = { childList: true, subtree: true };
@@ -14,7 +20,6 @@
 
     const callback = () => {
       if (window.__timelineEnabled === false) return;
-
       clearTimeout(timeout);
       timeout = setTimeout(() => {
         const messages = document.querySelectorAll('.adn, .ads');
@@ -27,24 +32,26 @@
       }, 1000);
     };
 
-    const observer = new MutationObserver(callback);
-    observer.observe(target, config);
+    // Disconnect previous observer if any
+    if (gmailThreadObserver) gmailThreadObserver.disconnect();
+    gmailThreadObserver = new MutationObserver(callback);
+    gmailThreadObserver.observe(target, config);
   };
 
+  /**
+   * Parses Gmail thread messages and prepares data for the timeline.
+   */
   const parseThread = (messages) => {
     const data = [];
-
     messages.forEach(msg => {
       const sender = msg.querySelector('span.gD')?.getAttribute('email') || msg.querySelector('span.gD')?.innerText;
       const timeStr = msg.querySelector('span.g3')?.getAttribute('title');
       const time = new Date(timeStr);
       const photo = msg.querySelector('img.ajn')?.src || 'https://via.placeholder.com/24';
-
       if (sender && !isNaN(time.getTime())) {
         data.push({ sender, time, photo });
       }
     });
-
     if (data.length > 0) {
       removeTimeline();
       injectTimeline(data);
@@ -54,11 +61,21 @@
     }
   };
 
+  /**
+   * Removes the timeline and tooltip from the DOM.
+   */
   const removeTimeline = () => {
     document.getElementById("reply-timeline")?.remove();
     document.querySelector(".timeline-tooltip")?.remove();
+    // Disconnect observer if timeline is disabled
+    if (window.__timelineEnabled === false && gmailThreadObserver) {
+      gmailThreadObserver.disconnect();
+    }
   };
 
+  /**
+   * Shows a message when no Gmail thread is open.
+   */
   const showNoThread = () => {
     removeTimeline();
     const div = document.createElement("div");
@@ -77,8 +94,8 @@
     `;
     div.innerHTML = `
       <div style="position: relative;">
-        ⚠️ No Gmail thread open
-        <span id="timeline-close" style="position:absolute; top:0; right:0; cursor:pointer; padding:4px;">✖</span>
+        <span style="margin-right:8px;">⚠️</span><span>No Gmail thread open</span>
+        <span id="timeline-close" aria-label="Close timeline" style="position:absolute; top:0; right:0; cursor:pointer; padding:4px;">✖</span>
       </div>
     `;
     document.body.appendChild(div);
@@ -91,47 +108,50 @@
     }
   };
 
+  /**
+   * Injects the timeline visualization into the Gmail UI.
+   */
   const injectTimeline = (data) => {
     removeTimeline();
     const container = document.createElement("div");
     container.id = "reply-timeline";
     container.style = `
-  position: fixed;
-  top: 80px;
-  right: 20px;
-  z-index: 999999;
-  background: #fff;
-  padding: 12px;
-  border-radius: 16px;
-  box-shadow: 0 8px 20px rgba(0,0,0,0.15);
-  font-family: sans-serif;
-  background-clip: padding-box;
-  border: 4px solid transparent;
-  background-origin: border-box;
-  background-image:
-    linear-gradient(#fff, #fff),
-    linear-gradient(135deg, #00c6ff, #0072ff, #8e2de2);
-  background-position: 0% 50%;
-  background-size: 300% 300%;
-  animation: border-flow 6s ease infinite;
+position: fixed;
+top: 80px;
+right: 20px;
+z-index: 999999;
+background: #fff;
+padding: 12px;
+border-radius: 16px;
+box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+font-family: sans-serif;
+background-clip: padding-box;
+border: 4px solid transparent;
+background-origin: border-box;
+background-image:
+  linear-gradient(#fff, #fff),
+  linear-gradient(135deg, #00c6ff, #0072ff, #8e2de2);
+background-position: 0% 50%;
+background-size: 300% 300%;
+animation: border-flow 6s ease infinite;
 `;
     container.innerHTML = `
       <div style="position: relative; font-weight:bold;">
-        📬 Reply Timeline
-        <span id="timeline-close" style="position:absolute; top:4px; right:8px; font-size:16px; font-weight:bold; cursor:pointer; opacity:0.6;" title="Close">✖</span>
+        <span>📬 Reply Timeline</span>
+        <span id="timeline-close" aria-label="Close timeline" style="position:absolute; top:4px; right:8px; font-size:16px; font-weight:bold; cursor:pointer; opacity:0.6;" title="Close">✖</span>
       </div>
       <svg id="timeline-chart" width="520" height="280"></svg>
     `;
     document.body.appendChild(container);
     const style = document.createElement('style');
-style.textContent = `
+    style.textContent = `
 @keyframes border-flow {
   0% { background-position: 0% 50%; }
   50% { background-position: 100% 50%; }
   100% { background-position: 0% 50%; }
 }
 `;
-document.head.appendChild(style);
+    document.head.appendChild(style);
 
     const closeBtn = document.getElementById("timeline-close");
     if (closeBtn) {
