@@ -1,5 +1,8 @@
 # Gmail Reply Timeline
 
+[![screenshot](/screenshot.jpg)]([http://google.com.au/](https://github.com/kaustav1996/gmail-reply-timeline))
+
+
 Visualise your Gmail reply conversations as a beautiful, interactive timeline directly inside Gmail.
 
 ## Features
