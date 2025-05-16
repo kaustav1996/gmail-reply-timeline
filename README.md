@@ -1,10 +1,9 @@
 # Gmail Reply Timeline
 
-Visualize your Gmail reply conversations as a beautiful, interactive timeline directly inside Gmail.
+Visualise your Gmail reply conversations as a beautiful, interactive timeline directly inside Gmail.
 
 ## Features
 - 📬 **Visual Timeline:** See every reply in a Gmail thread as a point on a timeline, with sender avatars and timestamps.
-- 🎨 **Modern UI:** Sleek, modern design with animated gradient borders and smooth interactions.
 - 🕒 **Quick Insights:** Instantly understand response patterns, delays, and participation in any conversation.
 - 🖱️ **Easy Toggle:** Enable or disable the timeline overlay with a single click from the extension popup.
 - 🛡️ **Privacy-First:** All processing happens locally in your browser. No data is sent anywhere.
@@ -21,6 +20,7 @@ Visualize your Gmail reply conversations as a beautiful, interactive timeline di
 2. Click the extension icon to toggle the timeline overlay.
 3. Hover over avatars to see sender details and exact reply times.
 4. Close the overlay at any time with the ✖ button.
+5. Expand the threads to make sure all elements are read.
 
 ## Privacy
 - This extension does **not** collect, store, or transmit any personal data or email content.
